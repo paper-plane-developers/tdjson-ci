@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Clone TDLib repository
+        run: git clone https://github.com/tdlib/td.git && cd td && git checkout 7d41d9eaa58a6e0927806283252dc9e74eda5512
+
+      - name: Build TDLib
+        if: ${{ matrix.arch == 'x86_64' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade
+          sudo apt-get install -y gperf
+          mkdir td/build && cd td/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../output .. && cmake --build . --target install
+
+      - name: Build TDLib on QEMU
+        if: ${{ matrix.arch != 'x86_64' }}
+        uses: uraimo/run-on-arch-action@v2.1.1
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ubuntu20.04
+          run: |
+            apt-get update
+            apt-get upgrade
+            apt-get install -y git zlib1g-dev libssl-dev gperf cmake g++
+            mkdir td/build && cd td/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../output .. && cmake --build . --target install
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: tdjson-${{ matrix.arch }}
+          path: |
+            td/output/lib/libtdjson.so.*
+            td/output/lib/pkgconfig
