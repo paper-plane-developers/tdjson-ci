@@ -21,7 +21,7 @@ jobs:
         if: ${{ matrix.arch == 'x86_64' }}
         run: |
           sudo apt-get update
-          sudo apt-get upgrade
+          sudo apt-get upgrade -y
           sudo apt-get install -y gperf
           mkdir td/build && cd td/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../output .. && cmake --build . --target install
 
@@ -33,7 +33,7 @@ jobs:
           distro: ubuntu20.04
           run: |
             apt-get update
-            apt-get upgrade
+            apt-get upgrade -y
             apt-get install -y git zlib1g-dev libssl-dev gperf cmake g++
             mkdir td/build && cd td/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../output .. && cmake --build . --target install
 
