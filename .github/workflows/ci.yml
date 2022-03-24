@@ -20,26 +20,37 @@ jobs:
       - name: Build TDLib
         if: ${{ matrix.arch == 'x86_64' }}
         run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
+          sudo apt-get update -q -y
           sudo apt-get install -y gperf
-          mkdir td/build && cd td/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../output .. && cmake --build . --target install
+          mkdir td/build && cd td/build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app ..
+          sudo cmake --build . --target install
 
       - name: Build TDLib on QEMU
         if: ${{ matrix.arch != 'x86_64' }}
-        uses: uraimo/run-on-arch-action@v2.1.1
+        uses: uraimo/run-on-arch-action@v2
         with:
           arch: ${{ matrix.arch }}
-          distro: ubuntu20.04
-          run: |
-            apt-get update
-            apt-get upgrade -y
+          distro: bullseye
+
+          setup: |
+            sudo mkdir /app
+
+          dockerRunArgs: |
+            --volume /app:/app
+
+          install: |
+            apt-get update -q -y
             apt-get install -y git zlib1g-dev libssl-dev gperf cmake g++
-            mkdir td/build && cd td/build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../output .. && cmake --build . --target install
+
+          run: |
+            mkdir td/build && cd td/build
+            cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app ..
+            cmake --build . --target install
 
       - uses: actions/upload-artifact@v2
         with:
           name: tdjson-${{ matrix.arch }}
           path: |
-            td/output/lib/libtdjson.so.*
-            td/output/lib/pkgconfig
+            /app/lib/libtdjson.so.*
+            /app/lib/pkgconfig
