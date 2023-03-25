@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
+        arch: [x86_64]
     steps:
       - uses: actions/checkout@v2
 
       - name: Clone TDLib repository
-        run: git clone https://github.com/tdlib/td.git && cd td && git checkout 3179d35694a28267a0b6273fc9b5bdce3b6b1235
+        run: git clone https://github.com/tdlib/td.git && cd td && git checkout eb664b4e9f71945ef3faa802af779e1630fedb8f
 
       - name: Build TDLib
         if: ${{ matrix.arch == 'x86_64' }}
