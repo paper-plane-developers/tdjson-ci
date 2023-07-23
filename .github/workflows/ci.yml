@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -31,7 +32,7 @@ jobs:
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: ${{ matrix.arch }}
-          distro: bullseye
+          distro: ubuntu_latest
 
           setup: |
             sudo mkdir /app
@@ -39,9 +40,13 @@ jobs:
           dockerRunArgs: |
             --volume /app:/app
 
+          env: |
+            DEBIAN_FRONTEND: noninteractive
+            TZ: Etc/UTC
+
           install: |
-            apt-get update -q -y
-            apt-get install -y git zlib1g-dev libssl-dev gperf cmake g++
+            apt update
+            apt install -y make git zlib1g-dev libssl-dev gperf cmake g++
 
           run: |
             mkdir td/build && cd td/build
