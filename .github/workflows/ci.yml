@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Clone TDLib repository
-        run: git clone https://github.com/tdlib/td.git && cd td && git checkout 2e5319ff360cd2d6dab638a7e0370fe959e4201b
+        run: git clone https://github.com/tdlib/td.git && cd td && git checkout 100ca72b9179366d91089fd929f6c210f697031a
 
       - name: Build TDLib
         if: ${{ matrix.arch == 'x86_64' }}
